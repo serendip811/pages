@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>맞벌이 부부 연금저축·IRP 세액공제 최적 배분 계산기 | 12월 절세 골든타임</title>
-  <meta name="description" content="남편과 아내의 연봉, 여유자금만 넣으면 3초 만에 최대 1,800만 원 한도 내에서 세액공제 환급금을 극대화하는 최적 납입 배분을 계산해 드립니다.">
+  <meta name="description" content="남편과 아내의 연봉, 여유자금, 기납입액을 바탕으로 세액공제 환급금을 극대화하는 계좌별 최적 납입 배분을 3초 만에 계산합니다.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -32,7 +32,7 @@
       <h1 class="text-2xl font-bold text-slate-900 tracking-tight">맞벌이 연금저축·IRP 최적 배분 계산기</h1>
       <p class="text-sm text-slate-600 mt-2">
         "남은 여유자금, 남편과 아내 중 누구 계좌에 넣어야 환급금이 가장 많을까?"<br>
-        딱 3개만 넣으면 세액공제 환급금을 극대화하는 배분 공식을 찾아드립니다.
+        딱 3개만 넣으면 즉시 계산되며, 이미 넣은 돈이나 결정세액까지 정밀 보정됩니다.
       </p>
     </div>
 
@@ -41,9 +41,10 @@
       <div class="space-y-6">
         <!-- Input 1: 남편 연봉 -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            남편 총급여 (연봉)
-          </label>
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-sm font-semibold text-slate-700">남편 총급여 (연봉)</label>
+            <span id="husbandTypeBadge" class="text-[11px] text-slate-400">직장인 근로소득 기준</span>
+          </div>
           <div class="relative">
             <input type="number" id="husbandSalary" placeholder="예: 6000" class="w-full pl-4 pr-12 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition outline-none text-base font-semibold text-slate-900">
             <span class="absolute right-4 top-3.5 text-sm font-medium text-slate-400">만원</span>
@@ -53,9 +54,10 @@
 
         <!-- Input 2: 아내 연봉 -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            아내 총급여 (연봉)
-          </label>
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-sm font-semibold text-slate-700">아내 총급여 (연봉)</label>
+            <span id="wifeTypeBadge" class="text-[11px] text-slate-400">직장인 근로소득 기준</span>
+          </div>
           <div class="relative">
             <input type="number" id="wifeSalary" placeholder="예: 4500" class="w-full pl-4 pr-12 py-3.5 bg-slate-50 rounded-2xl border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition outline-none text-base font-semibold text-slate-900">
             <span class="absolute right-4 top-3.5 text-sm font-medium text-slate-400">만원</span>
@@ -66,13 +68,91 @@
         <!-- Input 3: 올해 투입 가능 여유자금 -->
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-2">
-            올해 납입 가능한 부부 합산 여유자금
+            올해 12월 추가 납입할 부부 여유자금
           </label>
           <div class="relative">
             <input type="number" id="spareCash" placeholder="예: 1000" class="w-full pl-4 pr-12 py-3.5 bg-amber-50/50 rounded-2xl border border-amber-200 focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition outline-none text-base font-bold text-amber-900">
             <span class="absolute right-4 top-3.5 text-sm font-bold text-amber-600">만원</span>
           </div>
-          <p class="text-xs mt-1.5 text-slate-400">부부 합산 최대 공제 한도는 1,800만 원입니다.</p>
+          <p class="text-xs mt-1.5 text-slate-400">부부 합산 연간 세액공제 최대 한도는 1,800만 원입니다.</p>
+        </div>
+
+        <!-- Advanced Toggle Button -->
+        <div class="pt-2">
+          <button type="button" onclick="toggleAdvanced()" class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200/80 text-xs font-semibold text-slate-600 flex items-center justify-between transition">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-indigo-500"></i>
+              <span>이미 넣은 돈이나 결정세액이 있나요? (상세 설정)</span>
+            </span>
+            <i id="advancedChevron" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"></i>
+          </button>
+        </div>
+
+        <!-- Advanced Panel (Hidden by default) -->
+        <div id="advancedPanel" class="hidden bg-slate-50/70 p-5 rounded-2xl border border-slate-200 space-y-5 text-xs">
+          <p class="text-slate-500 font-medium leading-relaxed">
+            💡 올해 매달 자동이체로 미리 넣어둔 금액이 있다면 잔여 한도(900만 원)에서 차감하여 정확히 계산해 드립니다.
+          </p>
+
+          <!-- 남편 상세 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200/70 space-y-3">
+            <p class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span>👨 남편 상세 조건</span>
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-600 mb-1">올해 기납입 연금저축</label>
+                <div class="relative">
+                  <input type="number" id="husbandPaidPension" placeholder="0" class="w-full pl-3 pr-8 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold outline-none focus:border-indigo-500">
+                  <span class="absolute right-2.5 top-2 text-slate-400 text-[10px]">만원</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1">올해 기납입 IRP</label>
+                <div class="relative">
+                  <input type="number" id="husbandPaidIrp" placeholder="0" class="w-full pl-3 pr-8 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold outline-none focus:border-indigo-500">
+                  <span class="absolute right-2.5 top-2 text-slate-400 text-[10px]">만원</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-600 mb-1">예상 결정세액 (선택: 낼 세금이 적은 경우)</label>
+              <div class="relative">
+                <input type="number" id="husbandTaxCap" placeholder="비워두면 한도 없음" class="w-full pl-3 pr-8 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold outline-none focus:border-indigo-500">
+                <span class="absolute right-2.5 top-2 text-slate-400 text-[10px]">만원</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 아내 상세 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200/70 space-y-3">
+            <p class="font-bold text-slate-800 flex items-center gap-1.5">
+              <span>👩 아내 상세 조건</span>
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-600 mb-1">올해 기납입 연금저축</label>
+                <div class="relative">
+                  <input type="number" id="wifePaidPension" placeholder="0" class="w-full pl-3 pr-8 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold outline-none focus:border-indigo-500">
+                  <span class="absolute right-2.5 top-2 text-slate-400 text-[10px]">만원</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1">올해 기납입 IRP</label>
+                <div class="relative">
+                  <input type="number" id="wifePaidIrp" placeholder="0" class="w-full pl-3 pr-8 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold outline-none focus:border-indigo-500">
+                  <span class="absolute right-2.5 top-2 text-slate-400 text-[10px]">만원</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-slate-600 mb-1">예상 결정세액 (선택: 낼 세금이 적은 경우)</label>
+              <div class="relative">
+                <input type="number" id="wifeTaxCap" placeholder="비워두면 한도 없음" class="w-full pl-3 pr-8 py-2 bg-slate-50 rounded-lg border border-slate-200 text-xs font-semibold outline-none focus:border-indigo-500">
+                <span class="absolute right-2.5 top-2 text-slate-400 text-[10px]">만원</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Calculate Button -->
@@ -83,6 +163,7 @@
 
       <!-- Result Section (Hidden Initially) -->
       <div id="resultBox" class="mt-8 pt-8 border-t border-slate-100 hidden">
+        <!-- Top Refund Banner -->
         <div class="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-2xl p-6 text-white mb-6 shadow-lg">
           <p class="text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">예상 연말정산 세액공제 환급금</p>
           <div class="flex items-baseline gap-2">
@@ -92,8 +173,16 @@
           <p id="refundDiffNote" class="text-xs text-slate-300 mt-2 border-t border-indigo-800/60 pt-2"></p>
         </div>
 
+        <!-- Tax Cap Warning if applicable -->
+        <div id="taxCapNotice" class="hidden mb-6 p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-1">
+          <p class="font-bold flex items-center gap-1.5 text-amber-800">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> 결정세액 한도 안내 (이월 공제 가능)
+          </p>
+          <p id="taxCapDetail" class="text-amber-800 leading-relaxed"></p>
+        </div>
+
         <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-bullseye text-indigo-600"></i> 부부 계좌별 골든 배분표
+          <i class="fa-solid fa-bullseye text-indigo-600"></i> 부부 계좌별 골든 배분표 (12월 추가 납입액)
         </h3>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6">
@@ -113,9 +202,10 @@
                 <span id="husbandIrp" class="font-bold text-slate-900">0 만원</span>
               </div>
               <div class="flex justify-between border-t border-slate-200 pt-1.5 text-indigo-600 font-bold">
-                <span>합산 납입액:</span>
+                <span>추가 납입액 합계:</span>
                 <span id="husbandTotal">0 만원</span>
               </div>
+              <div id="husbandPriorNote" class="text-[11px] text-slate-400 pt-1 hidden"></div>
             </div>
           </div>
 
@@ -135,9 +225,10 @@
                 <span id="wifeIrp" class="font-bold text-slate-900">0 만원</span>
               </div>
               <div class="flex justify-between border-t border-slate-200 pt-1.5 text-indigo-600 font-bold">
-                <span>합산 납입액:</span>
+                <span>추가 납입액 합계:</span>
                 <span id="wifeTotal">0 만원</span>
               </div>
+              <div id="wifePriorNote" class="text-[11px] text-slate-400 pt-1 hidden"></div>
             </div>
           </div>
         </div>
@@ -184,6 +275,13 @@
   </footer>
 
   <script>
+    function toggleAdvanced() {
+      const p = document.getElementById('advancedPanel');
+      const c = document.getElementById('advancedChevron');
+      p.classList.toggle('hidden');
+      c.classList.toggle('rotate-180');
+    }
+
     function getRate(salary) {
       if (!salary || salary <= 0) return 0.165;
       return salary <= 5500 ? 0.165 : 0.132;
@@ -216,62 +314,129 @@
       const wSal = parseFloat(document.getElementById('wifeSalary').value) || 0;
       let cash = parseFloat(document.getElementById('spareCash').value) || 0;
 
-      if (cash <= 0) {
-        alert('올해 투입할 여유자금을 입력해 주세요!');
+      // 기납입액
+      const hPaidPension = parseFloat(document.getElementById('husbandPaidPension').value) || 0;
+      const hPaidIrp = parseFloat(document.getElementById('husbandPaidIrp').value) || 0;
+      const wPaidPension = parseFloat(document.getElementById('wifePaidPension').value) || 0;
+      const wPaidIrp = parseFloat(document.getElementById('wifePaidIrp').value) || 0;
+
+      // 결정세액 한도
+      const hTaxCap = parseFloat(document.getElementById('husbandTaxCap').value);
+      const wTaxCap = parseFloat(document.getElementById('wifeTaxCap').value);
+
+      if (cash <= 0 && (hPaidPension + hPaidIrp + wPaidPension + wPaidIrp) <= 0) {
+        alert('올해 12월에 추가 납입할 여유자금을 입력해 주세요!');
         return;
       }
 
-      // Max combined cap 1,800
-      const effectiveCash = Math.min(cash, 1800);
       const hRate = getRate(hSal);
       const wRate = getRate(wSal);
 
+      // 잔여 공제 가능 한도 계산 (1인당 연금저축 최대 600, 합산 최대 900)
+      const hTotalPaid = hPaidPension + hPaidIrp;
+      const hRemainTotal = Math.max(0, 900 - hTotalPaid);
+      const hRemainPension = Math.max(0, 600 - hPaidPension);
+
+      const wTotalPaid = wPaidPension + wPaidIrp;
+      const wRemainTotal = Math.max(0, 900 - wTotalPaid);
+      const wRemainPension = Math.max(0, 600 - wPaidPension);
+
+      // 여유자금 배분
       let hAlloc = 0;
       let wAlloc = 0;
 
       if (hRate > wRate) {
-        // 남편이 16.5%로 더 높음 -> 남편에게 우선 최대 900 배분
-        hAlloc = Math.min(effectiveCash, 900);
-        wAlloc = Math.min(effectiveCash - hAlloc, 900);
+        // 남편이 16.5% 우대 -> 남편 잔여한도 우선 배분
+        hAlloc = Math.min(cash, hRemainTotal);
+        wAlloc = Math.min(cash - hAlloc, wRemainTotal);
       } else if (wRate > hRate) {
-        // 아내가 16.5%로 더 높음 -> 아내에게 우선 최대 900 배분
-        wAlloc = Math.min(effectiveCash, 900);
-        hAlloc = Math.min(effectiveCash - wAlloc, 900);
+        // 아내가 16.5% 우대 -> 아내 잔여한도 우선 배분
+        wAlloc = Math.min(cash, wRemainTotal);
+        hAlloc = Math.min(cash - wAlloc, hRemainTotal);
       } else {
-        // 둘 다 동일 공제율 -> 반반 균등 배분 (또는 한쪽 채우고 나머지)
-        hAlloc = Math.min(effectiveCash / 2, 900);
-        wAlloc = Math.min(effectiveCash - hAlloc, 900);
+        // 동일 공제율 -> 반반 균등 또는 남은 한도 비율대로 배분
+        const half = cash / 2;
+        hAlloc = Math.min(half, hRemainTotal);
+        wAlloc = Math.min(cash - hAlloc, wRemainTotal);
+        // 만약 한쪽이 한도 차서 남으면 다른 쪽에 채우기
+        const remaining = cash - hAlloc - wAlloc;
+        if (remaining > 0) {
+          const addH = Math.min(remaining, hRemainTotal - hAlloc);
+          hAlloc += addH;
+          const addW = Math.min(remaining - addH, wRemainTotal - wAlloc);
+          wAlloc += addW;
+        }
       }
 
-      // 연금저축 우선 600, 잔여 IRP 300
-      const hPension = Math.min(hAlloc, 600);
-      const hIrp = Math.max(0, hAlloc - hPension);
+      // 연금저축 우선 채우고 나머지 IRP
+      const hAddPension = Math.min(hAlloc, hRemainPension);
+      const hAddIrp = Math.max(0, hAlloc - hAddPension);
 
-      const wPension = Math.min(wAlloc, 600);
-      const wIrp = Math.max(0, wAlloc - wPension);
+      const wAddPension = Math.min(wAlloc, wRemainPension);
+      const wAddIrp = Math.max(0, wAlloc - wAddPension);
 
-      const totalRefundWon = Math.round((hAlloc * hRate + wAlloc * wRate) * 10000);
+      // 이번 추가 납입으로 생기는 순수 추가 환급금
+      const hRefundWon = Math.round(hAlloc * hRate * 10000);
+      const wRefundWon = Math.round(wAlloc * wRate * 10000);
+      const totalRefundWon = hRefundWon + wRefundWon;
 
-      // Render
+      // Render Values
       document.getElementById('totalRefund').innerText = totalRefundWon.toLocaleString();
 
       document.getElementById('husbandRatePill').innerText = (hRate * 100).toFixed(1) + '%';
-      document.getElementById('husbandPension').innerText = hPension.toLocaleString() + ' 만원';
-      document.getElementById('husbandIrp').innerText = hIrp.toLocaleString() + ' 만원';
+      document.getElementById('husbandPension').innerText = hAddPension.toLocaleString() + ' 만원';
+      document.getElementById('husbandIrp').innerText = hAddIrp.toLocaleString() + ' 만원';
       document.getElementById('husbandTotal').innerText = hAlloc.toLocaleString() + ' 만원';
 
       document.getElementById('wifeRatePill').innerText = (wRate * 100).toFixed(1) + '%';
-      document.getElementById('wifePension').innerText = wPension.toLocaleString() + ' 만원';
-      document.getElementById('wifeIrp').innerText = wIrp.toLocaleString() + ' 만원';
+      document.getElementById('wifePension').innerText = wAddPension.toLocaleString() + ' 만원';
+      document.getElementById('wifeIrp').innerText = wAddIrp.toLocaleString() + ' 만원';
       document.getElementById('wifeTotal').innerText = wAlloc.toLocaleString() + ' 만원';
 
+      // 기납입 표시
+      const hPriorEl = document.getElementById('husbandPriorNote');
+      if (hTotalPaid > 0) {
+        hPriorEl.innerText = `(이미 넣은 돈 ${hTotalPaid}만원 제외 잔여한도)`;
+        hPriorEl.classList.remove('hidden');
+      } else {
+        hPriorEl.classList.add('hidden');
+      }
+
+      const wPriorEl = document.getElementById('wifePriorNote');
+      if (wTotalPaid > 0) {
+        wPriorEl.innerText = `(이미 넣은 돈 ${wTotalPaid}만원 제외 잔여한도)`;
+        wPriorEl.classList.remove('hidden');
+      } else {
+        wPriorEl.classList.add('hidden');
+      }
+
+      // 결정세액 체크
+      const taxCapBox = document.getElementById('taxCapNotice');
+      let capWarnings = [];
+      if (!isNaN(hTaxCap) && (hRefundWon / 10000) > hTaxCap) {
+        const overflow = (hRefundWon - hTaxCap * 10000);
+        capWarnings.push(`남편 예상 환급금(${hRefundWon.toLocaleString()}원)이 결정세액(${Math.round(hTaxCap*10000).toLocaleString()}원)을 초과합니다. 초과분 <strong>약 ${Math.round(overflow).toLocaleString()}원</strong>은 내년 연말정산으로 이월 공제 신청할 수 있습니다.`);
+      }
+      if (!isNaN(wTaxCap) && (wRefundWon / 10000) > wTaxCap) {
+        const overflow = (wRefundWon - wTaxCap * 10000);
+        capWarnings.push(`아내 예상 환급금(${wRefundWon.toLocaleString()}원)이 결정세액(${Math.round(wTaxCap*10000).toLocaleString()}원)을 초과합니다. 초과분 <strong>약 ${Math.round(overflow).toLocaleString()}원</strong>은 내년 연말정산으로 이월 공제 신청할 수 있습니다.`);
+      }
+
+      if (capWarnings.length > 0) {
+        document.getElementById('taxCapDetail').innerHTML = capWarnings.join('<br>');
+        taxCapBox.classList.remove('hidden');
+      } else {
+        taxCapBox.classList.add('hidden');
+      }
+
+      // 전략 코멘트
       let strategyText = '';
       if (hRate !== wRate) {
         const higher = hRate > wRate ? '남편' : '아내';
-        const diffWon = Math.round(Math.min(effectiveCash, 900) * 0.033 * 10000);
-        strategyText = `공제율 16.5% 우대 구간인 <strong>${higher}</strong>분 계좌에 먼저 900만 원(연금저축 600 + IRP 300)을 꽉 채웠습니다. 반대로 넣었을 때보다 <strong>약 ${diffWon.toLocaleString()}원</strong>을 더 환급받게 됩니다!`;
+        const diffWon = Math.round(Math.min(cash, 900) * 0.033 * 10000);
+        strategyText = `공제율 16.5% 우대 구간인 <strong>${higher}</strong>분 계좌에 우선 배분했습니다. 반대쪽에 몰아넣었을 때보다 <strong>약 ${diffWon.toLocaleString()}원</strong>을 더 돌려받게 됩니다!`;
       } else {
-        strategyText = `부부 모두 ${(hRate * 100).toFixed(1)}% 동일 공제율 구간이므로, 수령 시점의 연금소득세 분산 및 중도인출 유연성을 위해 양쪽 계좌에 균등하게 배분했습니다.`;
+        strategyText = `부부 모두 ${(hRate * 100).toFixed(1)}% 동일 공제율 구간이므로, 수령 시점 연금소득세 분산과 중도인출 유연성을 위해 균등 배분했습니다.`;
       }
       document.getElementById('strategyDetail').innerHTML = strategyText;
 
